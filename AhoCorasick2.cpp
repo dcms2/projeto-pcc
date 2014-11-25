@@ -11,11 +11,10 @@ using namespace std;
 
 struct state{
     map<char,int> g;
-    vector<int> o;
+    set<int> o;
     int f;
-    state(int numPatterns) {
+    state() {
     	this->f = 0;
-    	this->o.assign(numPatterns, 0);
     }
 };
 
@@ -41,7 +40,8 @@ void buildFailFunction(vector<state>& automaton){
 			}
 			automaton[next].f = (automaton[b].g.find(a) == automaton[b].g.end()) ? b : automaton[b].g[a];
 			int fail = automaton[next].f;
-			for(int i = 0; i < automaton[fail].o.size(); ++i) automaton[next].o[i] |= automaton[fail].o[i];
+			for(set<int>::iterator it2 = automaton[fail].o.begin(); it2 != automaton[fail].o.end(); ++it2)
+				automaton[next].o.insert(*it2);
 		}
 	}
 }
@@ -55,7 +55,7 @@ void buildFailFunction(vector<state>& automaton){
 void buildTransitionFunction(vector<state>& automaton, const vector<string>& patterns){
 	int next = 0;
 	int s = patterns.size();
-	automaton.push_back(state(s));
+	automaton.push_back(state());
 	for(int k = 0; k < s; ++k){
 		int curr = 0, j = 0, m = patterns[k].size();
 		while(j < m && automaton[curr].g.find(patterns[k][j]) != automaton[curr].g.end()){
@@ -64,11 +64,11 @@ void buildTransitionFunction(vector<state>& automaton, const vector<string>& pat
 		}
 		while(j<m){
 			automaton[curr].g[patterns[k][j]] = ++next;
-			automaton.push_back(state(s));
+			automaton.push_back(state());
 			curr = next;
 			j++;
 		}
-		automaton[curr].o[k] = 1;
+		automaton[curr].o.insert(k);
 	}
 }
 
@@ -103,9 +103,8 @@ vector< vector<int> > ahoCorasick(const string& text, const vector<string>& patt
             curr = states[curr].f;
         }
         curr = (states[curr].g.find(text[i]) == states[curr].g.end()) ? curr : states[curr].g[text[i]];
-        for(int j = 0; j < s; ++j) 
-        	if(states[curr].o[j]==1)
-        		occurrences[j].push_back(i-(int)patterns[j].size()+1);
+        for(set<int>::iterator it = states[curr].o.begin(); it != states[curr].o.end(); ++it)
+        	occurrences[*it].push_back(i-patterns[*it].size()+1);
     }
     return occurrences;
 }
