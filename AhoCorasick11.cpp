@@ -103,8 +103,8 @@ vector< vector<int> > ahoCorasick(const string& text, const vector<string>& patt
             curr = states[curr].f;
         }
         curr = (states[curr].g.find(text[i]) == states[curr].g.end()) ? curr : states[curr].g[text[i]];
-        for(unordered_set<int>::iterator it = states[curr].o.begin(); it != states[curr].o.end(); ++it)
-        	occurrences[*it].push_back(i-patterns[*it].size()+1);
+        for(auto& it : states[curr].o)
+        	occurrences[it].push_back(i-patterns[it].size()+1);
     }
     return occurrences;
 }
