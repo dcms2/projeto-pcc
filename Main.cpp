@@ -50,12 +50,11 @@ int main(int argc, char **argv) {
         ++optind;
     }
     while (optind < argc) {
-        glob_t *vector_ptr;
-        glob(argv[optind], GLOB_NOSORT, NULL, vector_ptr);
+        glob_t *vector_ptr = new glob_t;
+        glob(argv[optind], GLOB_NOSORT|GLOB_MARK, NULL, vector_ptr);
         for (int i = 0; i < vector_ptr->gl_pathc; i++) {
             printf("there is a textfile with name: %s\n", vector_ptr->gl_pathv[i]);
         }
-        //printf("there is a textfile with name: %s\n", argv[optind]);
         ++optind;
     }
 
