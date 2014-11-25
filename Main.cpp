@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include <getopt.h>
+#include <glob.h>
 
 using namespace std;
 
@@ -49,7 +50,12 @@ int main(int argc, char **argv) {
         ++optind;
     }
     while (optind < argc) {
-        printf("there is a textfile with name: %s\n", argv[optind]);
+        glob_t *vector_ptr;
+        glob(argv[optind], GLOB_NOSORT, NULL, vector_ptr);
+        for (int i = 0; i < vector_ptr->gl_pathc; i++) {
+            printf("there is a textfile with name: %s\n", vector_ptr->gl_pathv[i]);
+        }
+        //printf("there is a textfile with name: %s\n", argv[optind]);
         ++optind;
     }
 
