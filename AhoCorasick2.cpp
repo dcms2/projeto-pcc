@@ -5,8 +5,8 @@ using namespace std;
 /*
 	This struct represents a state of the automaton which will be constructed. 
 	Each state has a transition function g, the id of the state which the automaton
-	goes in case this state fails, and a vector, which stores, for each pattern, 0 if it
-	finishes at this state or 1 otherwise.
+	goes in case this state fails, and a set, which stores all the patterns that occurs at
+	that state.
 */
 
 struct state{
