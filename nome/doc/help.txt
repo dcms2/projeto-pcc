@@ -1,0 +1,19 @@
+
+Usage: ./tmp [OPTIONS] PATTERN TEXTFILE [TEXTFILE...]
+Search for PATTERN in each TEXTFILE.
+PATTERN can contain any printable character from the ASCII table.
+TEXTFILE can contain wildcards.
+
+Example: ./tmp 'GATTACA' dna*.txt text.txt
+
+Possible options:
+  -c, --count               print only a count of matching occurences of all patterns per FILE
+
+  -h, --help                display this help and exit
+
+  -e, --edit=ERRORMAX       print all lines from the FILEs that match some PATTERN with edit
+                            distance error less than or equal to ERRORMAX
+
+  -p, --pattern=FILE        obtain PATTERNs from FILE
+      In this case, FILE can contain many patterns to be matched, one per line.
+

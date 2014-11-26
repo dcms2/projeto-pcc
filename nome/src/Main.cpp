@@ -1,11 +1,49 @@
 #include <bits/stdc++.h>
 #include <getopt.h>
 #include <glob.h>
+#include "Aho_Corasick.h"
 
 using namespace std;
 
 inline void help() {
-    printf("need help?\n");
+    ifstream fileReader("../doc/help.txt");
+    string line;
+    while (getline(fileReader, line)) {
+        printf("%s\n", line.c_str());
+    }
+}
+
+inline void exactMatch(const vector<string>& fileNames, const vector<string>& patterns, bool hasCount) {
+    AhoCorasick aho = AhoCorasick(patterns);
+    string line;
+    for (int i = 0; i < fileNames.size(); ++i) {
+        ifstream fileReader(fileNames[i]);
+        long long total = 0;
+        while (getline(fileReader, line)) {
+            if (hasCount) {
+                total += aho.numTimes(line, false);
+            } else {
+                if (aho.numTimes(line, true)) {
+                    if (fileNames.size() == 1) {
+                        printf("%s\n", line.c_str());
+                    } else {
+                        printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                    }
+                }
+            }
+        }
+        if (hasCount) {
+            if (fileNames.size() == 1) {
+                printf("%lld\n", total);
+            } else {
+                printf("%s:%lld\n", fileNames[i].c_str(), total);
+            }
+        }
+    }
+}
+
+inline void approximatedMatch() {
+
 }
 
 int main(int argc, char **argv) {
@@ -25,20 +63,20 @@ int main(int argc, char **argv) {
 
     while ((op = getopt_long(argc, argv, "hce:p:", long_options, NULL)) != -1) {
         if (op == 'h') {
-            help();
+            hasHelp = 1;
         } else if (op == 'e') {
             maxError = atoi(optarg);
             hasEdit = 1;
         } else if (op == 'c') {
             hasCount = 1;
         } else if (op == 'p') {
-            hasPatternFile = 1;
             patternFileName = optarg;
+            hasPatternFile = 1;
         }
     }
 
-    if (hasEdit) {
-        printf("max error: %d\n", maxError);
+    if (hasHelp) {
+        help();
     } else {
         vector<string> patterns;
         if (hasPatternFile) {
@@ -52,16 +90,25 @@ int main(int argc, char **argv) {
             ++optind;
         }
 
-        if (hasCount) {
-            printf("only the number of occurrences\n");
-        }
+        vector<string> fileNames;
+
+        glob_t *vector_ptr = new glob_t;
+
         while (optind < argc) {
-            glob_t *vector_ptr = new glob_t;
             glob(argv[optind], GLOB_NOSORT|GLOB_MARK, NULL, vector_ptr);
+
             for (int i = 0; i < vector_ptr->gl_pathc; i++) {
-                printf("there is a textfile with name: %s\n", vector_ptr->gl_pathv[i]);
+                fileNames.push_back(vector_ptr->gl_pathv[i]);
             }
-            ++optind;
+
+            optind++;
+        }
+
+        if (hasEdit) {
+            //approximatedMatch();
+            printf("max error: %d\n", maxError);
+        } else {
+            exactMatch(fileNames, patterns, hasCount);
         }
     }
 
