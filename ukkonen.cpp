@@ -65,6 +65,43 @@ struct TernaryTree{
 	}
 };
 
+/*
+	This struct represents a state of the ukkonen automaton. It has a vector of 
+	integers representing the corresponding column and a function that maps each 
+	character of the alphabet to a new state.
+*/
+
+struct state{
+	vector<int> column;
+	unordered_map<char,int> sigma;
+	state () {}
+};
+
+/*
+	This method constructs the automaton that will be used later to find approximate matchings.
+*/
+
+vector<state> buildUkkFsm(const string& pattern, const string& alphabet, const int r){
+	
+}
+
+/*
+	This is the main method of the ukkonen aproximated matching algorithm. It calls the function that constructs
+	the automaton, and after that, processes the text to look for matchings.
+*/
+
+vector<int> ukkonen(const string& text, const string& pattern, const string& alphabet, const int r){
+	vector<int> occurences;
+	vector<state> Q = buildUkkFsm(pattern, alphabet, r);
+	int act = 0;
+	int m = pattern.size(), n = text.size();
+	if(Q[act].column[m] <= r) occurences.push_back(0);
+	for(int j = 0; j < n; ++j){
+		act = Q[act].sigma[text[j]];
+		if(Q[act].column[m] <= r) occurences.push_back(j+1);
+	}
+	return occurences;
+}
 
 
 int main(){
