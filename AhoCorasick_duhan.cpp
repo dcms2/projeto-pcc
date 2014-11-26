@@ -7,8 +7,8 @@ private:
     /*
       This class represents a state of the automaton which will be constructed. 
       Each state has a transition function g, the id of the state which the automaton
-      goes in case this state fails, and a set, which stores all the patterns that occurs at
-      that state.
+      goes in case this state fails, and an int, which stores the number of times a pattern
+      matches at this state.
     */
     class State {
     public:
