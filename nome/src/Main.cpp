@@ -24,20 +24,12 @@ inline void exactMatch(const vector<string>& fileNames, const vector<string>& pa
                 total += aho.numTimes(line, false);
             } else {
                 if (aho.numTimes(line, true)) {
-                    if (fileNames.size() == 1) {
-                        printf("%s\n", line.c_str());
-                    } else {
-                        printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
-                    }
+                    printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
                 }
             }
         }
         if (hasCount) {
-            if (fileNames.size() == 1) {
-                printf("%lld\n", total);
-            } else {
-                printf("%s:%lld\n", fileNames[i].c_str(), total);
-            }
+            printf("%s:%lld\n", fileNames[i].c_str(), total);
         }
     }
 }
