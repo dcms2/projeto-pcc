@@ -8,24 +8,24 @@ using namespace std;
 
 class Ukkonen {
 private:
-	/*
+    /*
         This class represents a state of the ukkonen automaton. It has a vector of 
         integers representing the corresponding column and a function that maps each 
         character of the alphabet to a new state.
-	*/
-	class State {
-	public:
+    */
+    class State {
+    public:
         vector<int> column;
         unordered_map<char,int> sigma;
         State() {}
         State(vector<int> column) : column(column) {}
-	};
+    };
 
-	/*
+    /*
         This method generates the column of the next state of the automaton, according to the column
         represented by the actual state and the current character of the alphabet.
-	*/
-	vector<int> nextColumn(const vector<int>& column, const char a, const string& pattern, const int error) {
+    */
+    vector<int> nextColumn(const vector<int>& column, const char a, const string& pattern, const int error) {
         vector<int> newColumn = {0};
         int m = pattern.size();
         for (int i = 1; i <= m; ++i) {
@@ -34,17 +34,17 @@ private:
             mn = min(mn, column[i]+1);
             mn = min(mn, column[i-1]+(pattern[i-1]!=a));
             newColumn.push_back(mn);
-        }	
+        }   
         return newColumn;
-	}
+    }
 
     vector<State> automaton; //This is the final automaton.
     unordered_set<char> alphabet; //This represents all the characters of the pattern plus a character that doesn't occur.
-    int error; 				 //This represents the error.
+    int error;               //This represents the error.
 
-	/*
+    /*
         This method constructs the automaton that will be used later to find approximate matchings.
-	*/
+    */
 
     void buildUkkFsm(const string& pattern, const int error) {
         int id = 0;
