@@ -5,15 +5,15 @@ using namespace std;
 /*
 	The 2 structs (Node and the ternary tree of nodes) below are constructed to make the proccess of checking if a state of the
 	automaton already exists in the set of states when the automaton is being constructed.
-	With the ternary tree, the cost of searching for a state turns out to be linear.
+	With the ternary tree, the cost of searching for a state turns out to be linear in the size of the state.
 */
 
-struct Node{
+struct Node {
 	int id;
 	Node* left;
 	Node* mid;
 	Node* right;
-	Node (int id) {
+	Node(int id) {
 		this->id = id;
 		this->left = NULL;
 		this->right = NULL;
@@ -21,7 +21,7 @@ struct Node{
 	}
 };
 
-struct TernaryTree{
+struct TernaryTree {
 	Node* head; 
 
 	TernaryTree() {
@@ -32,25 +32,28 @@ struct TernaryTree{
 		This method adds the column to the tree if it does not exist
 		and returns the id of the column added.
 	*/
-	int searchOrAdd(vector<int>& newColumn, int id){
+	int searchOrAdd(const vector<int>& newColumn, int id) {
 		Node* act = head;
-		for(int i = 1; i < (int)newColumn.size(); ++i){
+		for (int i = 1; i < newColumn.size(); ++i) {
 			int dif = newColumn[i]-newColumn[i-1];
-			if(dif==-1){
-				if(act->left != NULL) act = act->left;
-				else{
+			if (dif == -1) {
+				if (act->left != NULL) {
+					act = act->left;
+				} else {
 					act->left = new Node(id);
 					act = act->left;
 				}
-			}else if(dif == 0){
-				if(act->mid != NULL) act = act->mid;
-				else {
+			} else if (dif == 0) {
+				if (act->mid != NULL) {
+					act = act->mid;
+				} else {
 					act->mid = new Node(id);
 					act = act->mid;
 				}
 			} else {
-				if(act->right != NULL) act = act->right;
-				else{
+				if (act->right != NULL) {
+					act = act->right;
+				} else{
 					act->right = new Node(id);
 					act = act->right;
 				}
@@ -66,11 +69,11 @@ struct TernaryTree{
 	character of the alphabet to a new state.
 */
 
-struct state{
+struct state {
 	vector<int> column;
 	unordered_map<char,int> sigma;
-	state () {}
-	state (vector<int> column) : column(column) {}
+	state() {}
+	state(vector<int> column) : column(column) {}
 };
 
 /*
@@ -78,10 +81,10 @@ struct state{
 	represented by the actual state and the current character of the alphabet.
 */
 
-vector<int> nextColumn(const vector<int>& column, const char a, const string& pattern, const int r){
-	vector<int> newColumn; newColumn.push_back(0);
+vector<int> nextColumn(const vector<int>& column, const char a, const string& pattern, const int r) {
+	vector<int> newColumn = {0};
 	int m = pattern.size();
-	for(int i = 1; i <= m; ++i){
+	for (int i = 1; i <= m; ++i) {
 		int mn = r+1;
 		mn = min(mn, newColumn[i-1]+1);
 		mn = min(mn, column[i]+1);
@@ -95,23 +98,26 @@ vector<int> nextColumn(const vector<int>& column, const char a, const string& pa
 	This method constructs the automaton that will be used later to find approximate matchings.
 */
 
-vector<state> buildUkkFsm(const string& pattern, const string& alphabet, const int r){
+vector<state> buildUkkFsm(const string& pattern, const string& alphabet, const int r) {
 	int id = 0;
-	int m = (int)pattern.size();
+	int m = pattern.size();
 	vector<state> automaton;
-	vector<int> column; for(int i = 0; i <= m; ++i) column.push_back(min(i,r+1));
+	vector<int> column;
+	for (int i = 0; i <= m; ++i) {
+		column.push_back(min(i,r+1));
+	}
 	automaton.push_back(state(column));
 	queue<int> N; N.push(0);
-	TernaryTree TT = TernaryTree(); TT.searchOrAdd(column, id++);
-	while(!N.empty()){
+	TernaryTree TT = TernaryTree();
+	TT.searchOrAdd(column, id++);
+	while (!N.empty()) {
 		int act = N.front(); N.pop();
-		for(char a : alphabet){
+		for (char a : alphabet) {
 			column = nextColumn(automaton[act].column, a, pattern, r);
 			int nxtid = TT.searchOrAdd(column, id);
-			if(nxtid == id){
-				id++;
+			if (nxtid == id) {
 				automaton.push_back(state(column));
-				N.push((int)automaton.size()-1);
+				N.push(id++);
 			}
 			automaton[act].sigma[a] = nxtid;
 		}
@@ -120,19 +126,23 @@ vector<state> buildUkkFsm(const string& pattern, const string& alphabet, const i
 }
 
 /*
-	This is the main method of the ukkonen aproximated matching algorithm.  It proccesses the text
-	looking for matches. If a aproximated matched ocurred at some suffix of the preffix [0, j), than
+	This is the main method of the ukkonen approximated matching algorithm.  It proccesses the text
+	looking for matches. If an approximated matched ocurred at some suffix of the preffix [0, j), than
 	j will be in the returned vector. 
 */
 
-vector<int> ukkonen(const string& text, const int m, const int r, vector<state>& Q){
+vector<int> ukkonen(const string& text, const int m, const int r, vector<state>& Q) {
 	vector<int> occurences;
 	int act = 0;
 	int n = text.size();
-	if(Q[act].column[m] <= r) occurences.push_back(0);
-	for(int j = 0; j < n; ++j){
+	if (Q[act].column[m] <= r) {
+		occurences.push_back(0);
+	}
+	for (int j = 0; j < n; ++j) {
 		act = Q[act].sigma[text[j]];
-		if(Q[act].column[m] <= r) occurences.push_back(j+1);
+		if (Q[act].column[m] <= r) {
+			occurences.push_back(j+1);
+		}
 	}
 	return occurences;
 }
@@ -141,13 +151,15 @@ vector<int> ukkonen(const string& text, const int m, const int r, vector<state>&
 int main(){
 	int TC; scanf("%d", &TC);
 	while(TC--){
-		string pat; cin >> pat; string alphabet; cin >> alphabet; int r; cin >> r;
+		printf("pattern: "); string pat; cin >> pat;
+		printf("alphabet: "); string alphabet; cin >> alphabet;
+		printf("max error: "); int r; cin >> r;
 		vector<state> Q = buildUkkFsm(pat, alphabet, r);
-		int q; cin >> q;
-		while(q--){
-			string text; cin >> text;
+		printf("num texts: "); int q; cin >> q;
+		while (q--) {
+			printf("text: "); string text; cin >> text;
 			vector<int> ans = ukkonen(text, (int)pat.size(), r, Q);
-			for(int num : ans) cout << num << " ";
+			for (int num : ans) cout << num << " ";
 			cout << endl;
 		}
 	}
