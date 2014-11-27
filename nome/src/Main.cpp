@@ -2,6 +2,7 @@
 #include <getopt.h>
 #include <glob.h>
 #include "Aho_Corasick.h"
+#include "Ukkonen.h"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ inline void help() {
     }
 }
 
-inline void exactMatch(const vector<string>& fileNames, const vector<string>& patterns, bool hasCount) {
+inline void exactMatch(const vector<string>& fileNames, const vector<string>& patterns, const bool hasCount) {
     AhoCorasick aho = AhoCorasick(patterns);
     string line;
     for (int i = 0; i < fileNames.size(); ++i) {
@@ -34,8 +35,33 @@ inline void exactMatch(const vector<string>& fileNames, const vector<string>& pa
     }
 }
 
-inline void approximatedMatch() {
-
+inline void approximateMatch(const vector<string>& fileNames, const vector<string>& patterns,  const bool hasCount, const int maxError) {
+    string line;
+    Ukkonen* ukk = new Ukkonen[patterns.size()];
+    for (int i = 0; i < patterns.size(); ++i) {
+        ukk[i] = Ukkonen(patterns[i], maxError);
+    }
+    for (int i = 0; i < fileNames.size(); ++i) {
+        ifstream fileReader(fileNames[i]);
+        long long total = 0;
+        while (getline(fileReader, line)) {
+            if (hasCount) {
+                for (int j = 0; j < patterns.size(); ++j) {
+                    total += ukk[j].numTimes(line, false);
+                }
+            } else {
+                for (int j = 0; j < patterns.size(); ++j) {
+                    if (ukk[j].numTimes(line, true)) {
+                        printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                        break;
+                    }
+                }
+            }
+        }
+        if (hasCount) {
+            printf("%s:%lld\n", fileNames[i].c_str(), total);
+        }
+    }
 }
 
 int main(int argc, char **argv) {
@@ -97,8 +123,7 @@ int main(int argc, char **argv) {
         }
 
         if (hasEdit) {
-            //approximatedMatch();
-            printf("max error: %d\n", maxError);
+            approximateMatch(fileNames, patterns, hasCount, maxError);
         } else {
             exactMatch(fileNames, patterns, hasCount);
         }
