@@ -19,18 +19,22 @@ inline void exactMatch(const vector<string>& fileNames, const vector<string>& pa
     string line;
     for (int i = 0; i < fileNames.size(); ++i) {
         ifstream fileReader(fileNames[i]);
-        long long total = 0;
-        while (getline(fileReader, line)) {
-            if (hasCount) {
-                total += aho.numTimes(line, false);
-            } else {
-                if (aho.numTimes(line, true)) {
-                    printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+        if (!fileReader.is_open()) {
+            cerr << "couldn't open file: " << fileNames[i] << endl;
+        } else {
+            long long total = 0;
+            while (getline(fileReader, line)) {
+                if (hasCount) {
+                    total += aho.numTimes(line, false);
+                } else {
+                    if (aho.numTimes(line, true)) {
+                        printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                    }
                 }
             }
-        }
-        if (hasCount) {
-            printf("%s:%lld\n", fileNames[i].c_str(), total);
+            if (hasCount) {
+                printf("%s:%lld\n", fileNames[i].c_str(), total);
+            }
         }
     }
 }
@@ -43,23 +47,27 @@ inline void approximateMatch(const vector<string>& fileNames, const vector<strin
     }
     for (int i = 0; i < fileNames.size(); ++i) {
         ifstream fileReader(fileNames[i]);
-        long long total = 0;
-        while (getline(fileReader, line)) {
-            if (hasCount) {
-                for (int j = 0; j < patterns.size(); ++j) {
-                    total += ukk[j].numTimes(line, false);
-                }
-            } else {
-                for (int j = 0; j < patterns.size(); ++j) {
-                    if (ukk[j].numTimes(line, true)) {
-                        printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
-                        break;
+        if (!fileReader.is_open()) {
+            cerr << "couldn't open file: " << fileNames[i] << endl;
+        } else {
+            long long total = 0;
+            while (getline(fileReader, line)) {
+                if (hasCount) {
+                    for (int j = 0; j < patterns.size(); ++j) {
+                        total += ukk[j].numTimes(line, false);
+                    }
+                } else {
+                    for (int j = 0; j < patterns.size(); ++j) {
+                        if (ukk[j].numTimes(line, true)) {
+                            printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (hasCount) {
-            printf("%s:%lld\n", fileNames[i].c_str(), total);
+            if (hasCount) {
+                printf("%s:%lld\n", fileNames[i].c_str(), total);
+            }
         }
     }
 }
@@ -83,7 +91,13 @@ int main(int argc, char **argv) {
         if (op == 'h') {
             hasHelp = 1;
         } else if (op == 'e') {
-            maxError = atoi(optarg);
+            try {
+                maxError = stoi(optarg);
+            } catch (...) {
+                cerr << "Please provide an integer to --edit.\n";
+                help();
+                return 1;
+            }
             hasEdit = 1;
         } else if (op == 'c') {
             hasCount = 1;
@@ -104,8 +118,19 @@ int main(int argc, char **argv) {
                 patterns.push_back(pattern);
             }
         } else {
+            if (optind == argc) {
+                cerr << "Please provide a pattern or a patternfile.\n";
+                help();
+                return 1;
+            }
             patterns.push_back(argv[optind]);
             ++optind;
+        }
+
+        if (optind == argc) {
+            cerr << "Please provide a textfile.\n";
+            help();
+            return 1;
         }
 
         vector<string> fileNames;
@@ -119,7 +144,7 @@ int main(int argc, char **argv) {
                 fileNames.push_back(vector_ptr->gl_pathv[i]);
             }
 
-            optind++;
+            ++optind;
         }
 
         if (hasEdit) {
