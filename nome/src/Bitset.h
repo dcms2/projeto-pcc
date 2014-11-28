@@ -1,3 +1,6 @@
+#ifndef BITSET
+#define BITSET
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -109,13 +112,4 @@ public:
 
 };
 
-int main() {
-    Bitset bit = Bitset(110,1);
-    bit.clear(99);
-    bit.print();
-    Bitset bit2 = Bitset(30,0);
-    bit2.set(15);
-    bit2.print();
-    (bit | bit2).print();
-    return 0;
-}
+#endif
