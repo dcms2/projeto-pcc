@@ -42,10 +42,8 @@ inline void exactMatch(const vector<string>& fileNames, const vector<string>& pa
 
 inline void approximateMatch(const vector<string>& fileNames, const vector<string>& patterns,  const bool hasCount, const int maxError) {
     string line;
-    //Ukkonen* ukk = new Ukkonen[patterns.size()];
-    WuManber* wu = new WuManber[patterns.size()];
+    vector<WuManber> wu(patterns.size());
     for (int i = 0; i < patterns.size(); ++i) {
-        //ukk[i] = Ukkonen(patterns[i], maxError);
         wu[i] = WuManber(patterns[i]);
     }
     for (int i = 0; i < fileNames.size(); ++i) {
