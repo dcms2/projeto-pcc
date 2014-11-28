@@ -15,10 +15,12 @@ private:
 
     void char_mask(const string& pattern) {
         C = new Bitset[alphabet.size()];
-        for (auto& it : alphabet) {
-            C[it.second] = Bitset(pattern.size(), 1);
-        }
         Bitset K = Bitset(pattern.size(),1);
+
+        for (auto& it : alphabet) {
+            C[it.second] = Bitset(K);
+        }
+        
         K.clear(0);
         for (char c : pattern) {
             int i = alphabet[c];
