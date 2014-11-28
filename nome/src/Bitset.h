@@ -12,66 +12,109 @@ private:
     int numBits; //number of bits used
 
 public:
+
+    Bitset() {}
     
     Bitset(int size, long long allOne = 0) : length((size+63)/64), numBits(size) {
         array = new long long[length];
         for (int i = 0; i < length; ++i) {
             array[i] = -allOne;
         }
+        int last = size % 64;
+        if (last > 0) {
+            array[length-1] &= (1LL << last) - 1;
+        }
+    }
+
+    Bitset(const Bitset &other) {
+        length = other.length;
+        array = new long long[other.length];
+        numBits = other.numBits;
+        memcpy(array, other.array, sizeof(long long) * length);
+    }
+
+    void update_array(const Bitset &other) {
+        memcpy(array, other.array, sizeof(long long) * length);
+    }
+
+    void delete_array() {
+        delete[] array;
+        array = NULL;
     }
 
     long long& operator [] (int i) const {
         return array[i];
     }
 
-    Bitset operator & (const Bitset &other) const {
-        Bitset ret = Bitset(max(numBits, other.numBits));
-        for (int i = 0, end = min(length, other.length); i < end; ++i) {
-            ret[i] = array[i] & other[i];
-        }
-        
-        long long* aux = (length > other.length) ? array : other.array;
-
-        for (int i = min(length, other.length); i < ret.length; ++i) {
-            ret[i] = aux[i];
-        }
-        return ret;
-    }
-
-    Bitset operator | (const Bitset &other) const {
-        Bitset ret = Bitset(max(numBits, other.numBits));
-        for (int i = 0, end = min(length, other.length); i < end; ++i) {
-            ret[i] = array[i] | other[i];
-        }
-        
-        long long* aux = (length > other.length) ? array : other.array;
-
-        for (int i = min(length, other.length); i < ret.length; ++i) {
-            ret[i] = aux[i];
-        }
-        return ret;
-    }
-
-    Bitset operator << (int x) const {
-        if (x != 1) assert(false);
-        Bitset ret = Bitset(numBits);
+    void andd(const Bitset &other) const {
         for (int i = 0; i < length; ++i) {
-            ret[i] = array[i];
+            array[i] &= other[i];
         }
+    }
+
+    void orr(const Bitset &other) {
+        if (length >= other.length) {
+            for (int i = 0; i < length; ++i) {
+                array[i] |= other[i];
+            }
+        } else {
+            long long* aux = new long long[other.length];
+            for (int i = 0; i < length; ++i) {
+                aux[i] = array[i] | other[i];
+            }
+            for (int i = length; i < other.length; ++i) {
+                aux[i] = other[i];
+            }
+            delete[] array;
+            array = aux;
+        }
+    }
+
+    bool operator < (const Bitset &other) const {
+        if (length == other.length) {
+            for (int i = length-1; i >= 0; --i) {
+                if (static_cast<unsigned long long>(array[i]) < other[i]) return true;
+            }
+            return false;
+        } else if (length > other.length) {
+            for (int i = length-1; i >= other.length; --i) {
+                if (array[i] != 0) return false;
+            }
+            for (int i = other.length-1; i >= 0; --i) {
+                if (static_cast<unsigned long long>(array[i]) < other[i]) return true;
+            }
+            return false;
+        } else {
+            for (int i = other.length-1; i >= length; --i) {
+                if (other[i] != 0) return false;
+            }
+            for (int i = length-1; i >= 0; --i) {
+                if (static_cast<unsigned long long>(array[i]) < other[i]) return true;
+            }
+            return false;
+        }
+    }
+
+    void negate() {
+        for (int i = 0; i < length; ++i) {
+            array[i] = ~array[i];
+        }
+        int last = numBits % 64;
+        if (last > 0) {
+            array[length-1] &= (1LL << last) - 1;
+        }
+    }
+
+    void shift() {
         for (int i = length-1; i > 0; --i) {
-            ret[i] <<= 1;
-            ret[i] |= (ret[i-1] >> 63) & 1;
+            array[i] <<= 1;
+            array[i] |= (array[i-1] >> 63) & 1;
         }
-        ret[0] <<= 1;
-        return ret;
-    }
-
-    Bitset operator ~ () const {
-        Bitset ret = Bitset(numBits);
-        for (int i = 0; i < length; ++i) {
-            ret[i] = ~array[i];
+        array[0] <<= 1;
+        int last = numBits % 64;
+        if (last > 0) {
+            array[length-1] &= (1LL << last) - 1;
         }
-        return ret;
     }
 
     int get(int x) {

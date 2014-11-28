@@ -3,6 +3,7 @@
 #include <glob.h>
 #include "Aho_Corasick.h"
 #include "Ukkonen.h"
+#include "Wu_Manber.h"
 
 using namespace std;
 
@@ -41,9 +42,11 @@ inline void exactMatch(const vector<string>& fileNames, const vector<string>& pa
 
 inline void approximateMatch(const vector<string>& fileNames, const vector<string>& patterns,  const bool hasCount, const int maxError) {
     string line;
-    Ukkonen* ukk = new Ukkonen[patterns.size()];
+    //Ukkonen* ukk = new Ukkonen[patterns.size()];
+    WuManber* wu = new WuManber[patterns.size()];
     for (int i = 0; i < patterns.size(); ++i) {
-        ukk[i] = Ukkonen(patterns[i], maxError);
+        //ukk[i] = Ukkonen(patterns[i], maxError);
+        wu[i] = WuManber(patterns[i]);
     }
     for (int i = 0; i < fileNames.size(); ++i) {
         ifstream fileReader(fileNames[i]);
@@ -54,11 +57,11 @@ inline void approximateMatch(const vector<string>& fileNames, const vector<strin
             while (getline(fileReader, line)) {
                 if (hasCount) {
                     for (int j = 0; j < patterns.size(); ++j) {
-                        total += ukk[j].numTimes(line, false);
+                        total += wu[j].numTimes(line, maxError, false);
                     }
                 } else {
                     for (int j = 0; j < patterns.size(); ++j) {
-                        if (ukk[j].numTimes(line, true)) {
+                        if (wu[j].numTimes(line, maxError, true)) {
                             printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
                             break;
                         }
