@@ -165,6 +165,8 @@ int main(int argc, char **argv) {
             ++optind;
         }
 
+        delete vector_ptr;
+
         if (hasEdit && maxError > 0) {
             approximateMatch(fileNames, patterns, hasCount, maxError);
         } else {
