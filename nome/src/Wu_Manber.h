@@ -13,6 +13,10 @@ private:
     Bitset *C, msb;
     int patternSize;
 
+    /*
+        This method constructs the C array, where C[i] contains a bitset in which the j-th element is 0
+        if the j-th element of the pattern is equal to the i-th element of the alphabet.
+    */
     void char_mask(const string& pattern) {
         C = new Bitset[alphabet.size()];
         Bitset K = Bitset(pattern.size(),1);
@@ -48,6 +52,11 @@ public:
         msb.set(patternSize-1);
     }
 
+    /*
+        If onlyOccurs is false, this method returns the number of distinct ends of approximate
+        matches found in the text.
+        If onlyOccurs is true, this method returns 0 if no approximate match was found and 1 otherwise.
+    */
     int numTimes(const string& text, int error, const bool onlyOccurs) {
         if (error >= patternSize) {
             return text.size();
@@ -86,7 +95,6 @@ public:
             }
 
             if (S[error] < msb) {
-                //printf("%d\n", j);
                 numOccur++;
                 if (onlyOccurs) {
                     return 1;
