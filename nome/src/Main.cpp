@@ -165,7 +165,7 @@ int main(int argc, char **argv) {
             ++optind;
         }
 
-        if (hasEdit) {
+        if (hasEdit && maxError > 0) {
             approximateMatch(fileNames, patterns, hasCount, maxError);
         } else {
             exactMatch(fileNames, patterns, hasCount);
