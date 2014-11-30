@@ -82,6 +82,8 @@ private:
 
 public:
 
+    AhoCorasick() {}
+
     AhoCorasick(const vector<string>& patterns) {
         buildTransitionFunction(patterns);
         buildFailFunction();

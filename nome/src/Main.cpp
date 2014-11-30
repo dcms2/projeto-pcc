@@ -2,7 +2,7 @@
 #include <getopt.h>
 #include <glob.h>
 #include "Aho_Corasick.h"
-#include "Ukkonen.h"
+#include "Boyer_Moore.h"
 #include "Wu_Manber.h"
 
 using namespace std;
@@ -16,7 +16,14 @@ inline void help() {
 }
 
 inline void exactMatch(const vector<string>& fileNames, const vector<string>& patterns, const bool hasCount) {
-    AhoCorasick aho = AhoCorasick(patterns);
+    const bool single = patterns.size() == 1;
+    AhoCorasick aho;
+    BoyerMoore bm;
+    if (single) {
+        bm = BoyerMoore(patterns[0]);
+    } else {
+        aho = AhoCorasick(patterns);
+    }
     string line;
     for (int i = 0; i < fileNames.size(); ++i) {
         ifstream fileReader(fileNames[i]);
@@ -26,10 +33,20 @@ inline void exactMatch(const vector<string>& fileNames, const vector<string>& pa
             long long total = 0;
             while (getline(fileReader, line)) {
                 if (hasCount) {
-                    total += aho.numTimes(line, false);
+                    if (single) {
+                        total += bm.numTimes(line, false);
+                    } else {
+                        total += aho.numTimes(line, false);
+                    }
                 } else {
-                    if (aho.numTimes(line, true)) {
-                        printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                    if (single) {
+                        if (bm.numTimes(line, true)) {
+                            printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                        }                        
+                    } else {
+                        if (aho.numTimes(line, true)) {
+                            printf("%s:%s\n", fileNames[i].c_str(), line.c_str());
+                        }
                     }
                 }
             }

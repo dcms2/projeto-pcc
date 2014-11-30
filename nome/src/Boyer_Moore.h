@@ -74,6 +74,8 @@ private:
 
 public:
 
+    BoyerMoore() {}
+
     BoyerMoore(const string& pattern) : pattern(pattern) {
         alphabet[0] = 0; //0 represents any character that doesn't occur in pattern.
         int cnt = 1;
