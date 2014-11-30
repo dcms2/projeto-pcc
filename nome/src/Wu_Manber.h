@@ -49,6 +49,10 @@ public:
     }
 
     int numTimes(const string& text, int error, const bool onlyOccurs) {
+        if (error >= patternSize) {
+            return text.size();
+        }
+        
         int numOccur = 0;
 
         Bitset* S = new Bitset[error+1];
